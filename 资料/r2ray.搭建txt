@@ -1,0 +1,104 @@
+如果在继续安装时出现错误 请按以下操作
+rpmdb: Thread/process 18689/140667405547424 failed: Thread died in Berkeley DB library
+error: db3 error(-30974) from dbenv->failchk: DB_RUNRECOVERY: Fatal error, run database recovery
+error: cannot open Packages index using db3 -  (-30974)
+error: cannot open Packages database in /var/lib/rpm
+CRITICAL:yum.main:
+ 
+Error: rpmdb open failed
+这是RPM数据库被破坏。
+
+
+重建数据库并修复  先进入到/var/lib/rpm目录
+  cd /var/lib/rpm
+                                     然后执行：
+
+for i in `ls | grep 'db.'`;do mv $i $i.bak;done
+
+rpm --rebuilddb
+yum clean all
+此时就修复好了 然后输入一键脚本重新开始
+本视频介绍v2ray使用websocket+tls自由上网的方法，但稳定性较好，不易被X，同时升级到最新版内核，启动BBR加速。
+一  创建VPS 推荐使用  1. CentOS 7+ 系统 演示升级内核 启动BBR加速
+                                  2.Debian 9 系统，脚本会自动启用 BBR 优化
+                                  ping检测：https://ping.chinaz.com/
+二  申请域名
+      演示申请免费域名和解析  https://www.freenom.com/
+三  已经按搭建   v2ray+websocket+tls    可以伪装成正常网站的流量
+                        一键脚本：bash <(curl -s -L https://git.io/v2ray.sh)
+                          安装过程就很简单了，但一定要注意一些细节......
+四  V2ray客户端下载：不再演示，请观看113期视频中的相关内容
+       1.下载 V2Ray：https://github.com/v2ray/v2ray-core/releases/latest
+       2.下载 V2RayN： https://github.com/2dust/v2rayN/releases/latest
+五  升级内核：可以先输入 uname -r 查一下系统内核
+ 1. 载入公钥
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+2. 升级安装ELRepo
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+3. 载入elrepo-kernel元数据
+yum --disablerepo=\* --enablerepo=elrepo-kernel repolist
+4. 查看可用的rpm包
+yum --disablerepo=\* --enablerepo=elrepo-kernel list kernel*Installed Packages
+5. 安装最新版本的kernel  可能需要花费一些时间 一定要运行完
+yum --disablerepo=\* --enablerepo=elrepo-kernel install  kernel-ml.x86_64  -y
+6. 删除旧版本工具包
+yum remove kernel-tools-libs.x86_64 kernel-tools.x86_64  -y
+7. 安装新版本工具包
+yum --disablerepo=\* --enablerepo=elrepo-kernel install kernel-ml-tools.x86_64  -y
+8. 查看内核插入顺序
+awk -F \' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg
+说明：默认新内核是从头插入，默认启动顺序也是从0开始（当前顺序还未生效），或者使用：
+9. 查看当前实际启动顺序
+grub2-editenv list
+10. 设置默认启动
+grub2-set-default 'CentOS Linux (5.3.1-1.el7.elrepo.x86_64) 7 (Core)'
+grub2-editenv list  保存
+或者直接设置数值
+grub2-set-default 0　　// 0代表当前第一行，也就是上面的4.20.12版本那一行内容
+grub2-editenv list
+11. 重启并检查
+reboot      重启   重启之前要切换到其他节点或使用其他科学上网方式
+uname -r  检查
+六  开启BBR的方法
+1、修改系统变量   输入下面的命令前要先开启root权限  sudo -i
+echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
+echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
+2、保存生效
+sysctl -p
+3、查看内核是否已开启BBR
+sysctl net.ipv4.tcp_available_congestion_control
+显示以下即已开启：
+# sysctl net.ipv4.tcp_available_congestion_control
+net.ipv4.tcp_available_congestion_control = bbr cubic reno
+4、查看BBR是否启动
+lsmod | grep bbr
+显示以下即启动成功：
+# lsmod | grep bbr
+tcp_bbr                20480  4(任意数字)
+
+
+部分美国地址信息：
+电话: (310)398-5721 商家名称:Albertson Oldsmobile Chevrolet
+
+地址
+街道: 4114Sepulveda Blvd.
+城市: CulverCity,州: CA,邮政编码: 90230
+
+电话: (626)339-6261 商家名称:Clippinger Chevrolet Oldsmobile
+
+地址
+街道: 137 W SanBernardino Rd.
+城市: Covina,州: CA,邮政编码: 91723
+
+电话: (909)394-9899 商家名称: GlendoraChevrolet
+
+地址
+街道: 1959 AutoCenter Dr.
+城市: Glendora,州: CA,邮政编码: 91740
+
+电话: (714)841-3999 商家名称:Huntington Beach Chevrolet Jeep
+
+地址
+街道: 16701Beach Blvd.
+城市: HuntingtonBeach,州: CA,邮政编码: 92647
+
